@@ -26,7 +26,7 @@ setup(
     author_email="hunter@mcgushion.com",
     license="MIT",
     packages=["docstr_coverage"],
-    install_requires=[],
+    install_requires=["pybadges"],
     include_package_data=True,
     zip_safe=False,
     test_suite="nose.collector",

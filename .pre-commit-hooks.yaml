@@ -1,0 +1,5 @@
+- id: docstring-coverage
+  name: docstring-coverage
+  description: Computes docstring coverage for Python code
+  entry: docstr-coverage
+  files: .

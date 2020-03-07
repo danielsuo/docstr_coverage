@@ -7,6 +7,8 @@ import re
 import sys
 from pathlib import Path
 
+from pybadges import badge
+
 
 class DocStringCoverageVisitor(NodeVisitor):
     """Class to visit nodes, determine whether a node requires a docstring, and to check for the existence of a docstring"""
@@ -43,16 +45,19 @@ class DocStringCoverageVisitor(NodeVisitor):
 
 
 GRADES = (
-    ("AMAZING! Your docstrings are truly a wonder to behold!", 100),
-    ("Excellent", 92),
-    ("Great", 85),
-    ("Very good", 70),
-    ("Good", 60),
-    ("Not bad", 40),
-    ("Not good", 25),
-    ("Extremely poor", 10),
-    ("Not documented at all", 2),
-    ("Do you even docstring?", 1),
+    ("A+", 100, "#27ae60"),
+    ("A", 95, "#2ecc71"),
+    ("A-", 85, "#2ecc71"),
+    ("B+", 75, "#f1c40f"),
+    ("B", 65, "#f1c40f"),
+    ("B-", 55, "#f39c12"),
+    ("C+", 45, "#f39c12"),
+    ("C", 35, "#e67e22"),
+    ("C-", 25, "#e67e22"),
+    ("D+", 15, "#e74c3c"),
+    ("D", 10, "#e74c3c"),
+    ("D-", 2, "#c0392b"),
+    ("F", 1, "#c0392b"),
 )
 
 
@@ -221,7 +226,7 @@ def get_docstring_coverage(
         file_missing_list = []
 
         #################### Read and Parse Source ####################
-        with open(filename, "r", encoding='utf-8') as f:
+        with open(filename, "r", encoding="utf-8") as f:
             source_tree = f.read()
 
         doc_visitor = DocStringCoverageVisitor()
@@ -242,7 +247,9 @@ def get_docstring_coverage(
 
         # Traverse through functions and classes
         for symbol in _tree[-1]:
-            temp_docs_needed, temp_docs_covered, missing_list = print_docstring("", symbol, filename, ignore_names)
+            temp_docs_needed, temp_docs_covered, missing_list = print_docstring(
+                "", symbol, filename, ignore_names
+            )
             file_docs_needed += temp_docs_needed
             file_docs_covered += temp_docs_covered
             file_missing_list += missing_list
@@ -306,8 +313,10 @@ def get_docstring_coverage(
     log("Total docstring coverage: %.1f%%; " % (total_results["coverage"]), 1, True)
 
     #################### Calculate Total Grade ####################
-    grade = next(_[0] for _ in GRADES if _[1] <= total_results["coverage"])
+    grade, color = next((_[0], _[2]) for _ in GRADES if _[1] <= total_results["coverage"])
     log("Grade: %s" % grade, 1)
+    total_results["grade"] = grade
+    total_results["grade_color"] = color
     return file_results, total_results
 
 
@@ -386,8 +395,9 @@ def _execute():
         dest="ignore_names_file",
         default=".docstr_coverage",
         type="string",
-        help="Filepath containing list of regex (file-pattern, name-pattern) pairs"
+        help="Filepath containing list of regex (file-pattern, name-pattern) pairs",
     )
+    parser.add_option("-b", "--generate-badge", dest="badge_path", default=None)
     # TODO: Separate above arg/option parsing into separate function - Document return values to describe allowed options
     options, args = parser.parse_args()
 
@@ -425,7 +435,9 @@ def _execute():
         options.ignore_names_file = Path(path, options.ignore_names_file)
 
     if os.path.isfile(options.ignore_names_file):
-        ignore_names = tuple([line.split() for line in open(options.ignore_names_file).readlines() if ' ' in line])
+        ignore_names = tuple(
+            [line.split() for line in open(options.ignore_names_file).readlines() if " " in line]
+        )
 
     file_results, total_results = get_docstring_coverage(
         filenames,
@@ -437,7 +449,17 @@ def _execute():
         ignore_names=ignore_names,
     )
 
-    if total_results['coverage'] != 100.0:
+    if options.badge_path is not None:
+        svg = badge(
+            left_text="doc coverage",
+            right_text="{}: {:.0f}%".format(total_results["grade"], total_results["coverage"]),
+            right_color=total_results["grade_color"],
+        )
+
+        with open(options.badge_path, "w") as f:
+            f.write(svg)
+
+    if total_results["coverage"] != 100.0:
         raise SystemExit(1)
 
     raise SystemExit(0)
