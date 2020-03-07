@@ -10,7 +10,7 @@ MAJOR, MINOR, MICRO = 1, 0, 5
 __VERSION__ = "{}.{}.{}".format(MAJOR, MINOR, MICRO)
 
 setup(
-    name="docstr_coverage",
+    name="docstring-coverage",
     version=__VERSION__,
     description=" ".join(
         [
@@ -21,18 +21,18 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     keywords="docstring coverage documentation audit source code statistics report",
-    url="https://github.com/HunterMcGushion/docstr_coverage",
+    url="https://github.com/danielsuo/docstring-coverage",
     author="Hunter McGushion",
     author_email="hunter@mcgushion.com",
     license="MIT",
-    packages=["docstr_coverage"],
+    packages=find_packages(),
     install_requires=["pybadges"],
     include_package_data=True,
     zip_safe=False,
     test_suite="nose.collector",
     tests_require=["nose"],
-    entry_points=dict(console_scripts=["docstr-coverage=docstr_coverage.coverage:_execute"]),
-    classifiers=(
+    entry_points=dict(console_scripts=["docstring-coverage=docstring_coverage.coverage:_execute"]),
+    classifiers=[
         # TODO: Check Python 2 compatibility
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -44,5 +44,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
         "Topic :: Utilities",
-    ),
+    ],
 )

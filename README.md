@@ -1,5 +1,7 @@
-Docstr-Coverage
+Python docstring coverage
 ===============
+NOTE: This is fully the work of others. I made some changes (badge generation,
+pre-commit hooks, etc) and wanted it to be pip installable. - @danielsuo.
 
 If the health of your documentation is in dire straits, `docstr-coverage` will see you now.
 
