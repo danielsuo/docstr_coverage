@@ -397,13 +397,35 @@ def _execute():
         type="string",
         help="Filepath containing list of regex (file-pattern, name-pattern) pairs",
     )
+    parser.add_option(
+        "--hook-mode",
+        action="store_true",
+        dest="hook_mode",
+        default=False,
+        help="Process file paths differently",
+    )
+    parser.add_option(
+        "--min-hook-passing-score",
+        dest="min_hook_passing_score",
+        default=100,
+        help="Minimum grade to pass checks",
+    )
     parser.add_option("-b", "--generate-badge", dest="badge_path", default=None)
     # TODO: Separate above arg/option parsing into separate function - Document return values to describe allowed options
     options, args = parser.parse_args()
 
-    if len(args) != 1:
+    if not options.hook_mode and len(args) != 1:
         print("Expected a single path argument. Received invalid argument(s): {}".format(args[1:]))
         sys.exit()
+
+    if options.hook_mode:
+        found_py = False
+        for arg in args:
+            if arg.endswith(".py"):
+                found_py = True
+                break
+
+        args[0] = "."
 
     #################### Collect Filenames ####################
     exclude_re = re.compile(r"{}".format(options.exclude)) if options.exclude else None
@@ -427,7 +449,7 @@ def _execute():
                 filenames.extend(new_files)
 
     if len(filenames) < 1:
-        sys.exit("No Python files found")
+        raise SystemExit(0)
 
     ignore_names = ()
 
@@ -459,7 +481,15 @@ def _execute():
         with open(options.badge_path, "w") as f:
             f.write(svg)
 
-    if total_results["coverage"] != 100.0:
+    if total_results["coverage"] != 100.0 or (
+        options.hook_mode and total_results["coverage"] > options.min_hook_passing_score
+    ):
+        if options.hook_mode:
+            print(
+                "Docstring coverage score of {:0.2f}% lower than minimum of {:0.2f}%".format(
+                    total_results["coverage"], options.min_hook_passing_score
+                )
+            )
         raise SystemExit(1)
 
     raise SystemExit(0)

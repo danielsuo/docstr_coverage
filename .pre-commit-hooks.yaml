@@ -3,3 +3,4 @@
   description: Computes docstring coverage for Python code
   entry: docstring-coverage
   language: python
+  args: ['--verbose', '0', '--hook-mode']
