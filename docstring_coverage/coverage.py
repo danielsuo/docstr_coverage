@@ -482,7 +482,7 @@ def _execute():
             f.write(svg)
 
     if total_results["coverage"] != 100.0 or (
-        options.hook_mode and total_results["coverage"] > options.min_hook_passing_score
+        options.hook_mode and total_results["coverage"] < options.min_hook_passing_score
     ):
         if options.hook_mode:
             print(
