@@ -481,13 +481,12 @@ def _execute():
         with open(options.badge_path, "w") as f:
             f.write(svg)
 
-    if total_results["coverage"] != 100.0 or (
-        options.hook_mode and total_results["coverage"] < options.min_hook_passing_score
-    ):
+    if (total_results["coverage"] != 100.0 and not options.hook_mode) or (
+        options.hook_mode and total_results["coverage"] < int(options.min_hook_passing_score)):
         if options.hook_mode:
             print(
                 "Docstring coverage score of {:0.2f}% lower than minimum of {:0.2f}%".format(
-                    total_results["coverage"], options.min_hook_passing_score
+                    total_results["coverage"], int(options.min_hook_passing_score)
                 )
             )
         raise SystemExit(1)
